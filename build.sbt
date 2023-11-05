@@ -7,7 +7,7 @@ version := "0.9.5-aiq1"
 scalaVersion := sys.env.getOrElse("SCALA_VERSION", "2.12.15")
 organization := "com.ibm"
 name := "spark-s3-shuffle"
-val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3.3.2")
+val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3.3.2-aiq44")
 
 enablePlugins(GitVersioning, BuildInfoPlugin)
 enablePlugins(PublishToArtifactory)
@@ -45,7 +45,32 @@ libraryDependencies ++= (if (scalaBinaryVersion.value == "2.12") Seq(
   )
 else Seq())
 
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+javacOptions ++= Seq("-source", "17", "-target", "17")
+javaOptions ++= Seq(
+  "--add-opens=java.base/java.lang=ALL-UNNAMED",
+  "--add-opens=java.base/java.math=ALL-UNNAMED",
+  "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
+  "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+  "--add-opens=java.base/java.io=ALL-UNNAMED",
+  "--add-opens=java.base/java.net=ALL-UNNAMED",
+  "--add-opens=java.base/java.nio=ALL-UNNAMED",
+  "--add-opens=java.base/java.util=ALL-UNNAMED",
+  "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED",
+  "--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+  "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
+  "--add-opens=java.base/sun.nio.cs=ALL-UNNAMED",
+  "--add-opens=java.base/sun.security.action=ALL-UNNAMED",
+  "--add-opens=java.base/sun.util.calendar=ALL-UNNAMED",
+)
+
+resolvers ++= Seq(
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+  "aiq-artifacts".at("s3://s3-us-east-1.amazonaws.com/aiq-artifacts/releases"),
+  "Artifactory".at("https://actioniq.jfrog.io/artifactory/aiq-sbt-local/"),
+  DefaultMavenRepository,
+  Resolver.mavenLocal,
+)
+
 javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled")
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
