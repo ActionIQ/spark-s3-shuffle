@@ -10,6 +10,7 @@ name := "spark-s3-shuffle"
 val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3.3.2")
 
 enablePlugins(GitVersioning, BuildInfoPlugin)
+enablePlugins(PublishToArtifactory)
 
 // Git
 git.useGitDescribe := true
