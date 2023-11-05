@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache2.0
 //
 
-version := "0.9.5-aiq1"
+version := "0.9.5-aiq2"
 scalaVersion := sys.env.getOrElse("SCALA_VERSION", "2.12.15")
 organization := "com.ibm"
 name := "spark-s3-shuffle"
