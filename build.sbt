@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: Apache2.0
 //
 
-version := "0.9.5-aiq2"
+version := "0.9.5-aiq3"
 scalaVersion := sys.env.getOrElse("SCALA_VERSION", "2.12.15")
 organization := "com.ibm"
 name := "spark-s3-shuffle"
 val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3-3-2-aiq44")
+val javaVersion = "11"
 
 enablePlugins(GitVersioning, BuildInfoPlugin)
 enablePlugins(PublishToArtifactory)
@@ -45,7 +46,8 @@ libraryDependencies ++= (if (scalaBinaryVersion.value == "2.12") Seq(
   )
 else Seq())
 
-javacOptions ++= Seq("-source", "17", "-target", "17")
+javacOptions ++= Seq("-release", javaVersion)
+scalacOptions ++= Seq("-release", javaVersion)
 javaOptions ++= Seq(
   "--add-opens=java.base/java.lang=ALL-UNNAMED",
   "--add-opens=java.base/java.math=ALL-UNNAMED",
