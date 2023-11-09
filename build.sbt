@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache2.0
 //
 
-version := "0.9.5-aiq3"
+version := "0.9.5-aiq4"
 scalaVersion := sys.env.getOrElse("SCALA_VERSION", "2.12.15")
 organization := "com.ibm"
 name := "spark-s3-shuffle"
-val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3-3-2-aiq45")
+val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3-3-2-aiq45mp1")
 val javaVersion = "11"
 
 enablePlugins(GitVersioning, BuildInfoPlugin)
