@@ -7,9 +7,8 @@ version := "0.9.5-aiq6"
 scalaVersion := sys.env.getOrElse("SCALA_VERSION", "2.12.15")
 organization := "com.ibm"
 name := "spark-s3-shuffle"
-// TODO: use AIQ release?
-val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3.3.2")
-val javaVersion = "11"
+val sparkVersion = sys.env.getOrElse("SPARK_VERSION", "3-3-2-aiq45mp2")
+val javaVersion = "17"
 
 enablePlugins(GitVersioning, BuildInfoPlugin)
 enablePlugins(PublishToArtifactory)

@@ -7,7 +7,7 @@ package org.apache.spark.shuffle
 
 import org.apache.spark.TaskContext
 import org.apache.spark.internal.Logging
-import org.apache.spark.shuffle.api.SingleSpillShuffleMapOutputWriter
+import org.apache.spark.shuffle.api.AiqSingleSpillShuffleMapOutputWriter
 import org.apache.spark.shuffle.helper.{S3ShuffleDispatcher, S3ShuffleHelper}
 import org.apache.spark.storage.ShuffleDataBlockId
 import org.apache.spark.util.Utils
@@ -15,7 +15,7 @@ import org.apache.spark.util.Utils
 import java.io.{File, FileInputStream}
 import java.nio.file.{Files, Path}
 
-class S3SingleSpillShuffleMapOutputWriter(shuffleId: Int, mapId: Long) extends SingleSpillShuffleMapOutputWriter with Logging {
+class S3SingleSpillShuffleMapOutputWriter(shuffleId: Int, mapId: Long) extends AiqSingleSpillShuffleMapOutputWriter with Logging {
 
   private lazy val dispatcher = S3ShuffleDispatcher.get
 

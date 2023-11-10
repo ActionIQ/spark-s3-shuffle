@@ -5,45 +5,39 @@
 
 package org.apache.spark.shuffle
 
-import org.apache.spark.shuffle.api.{
-  ShuffleDataIO,
-  ShuffleDriverComponents,
-  ShuffleExecutorComponents,
-  ShuffleMapOutputWriter,
-  SingleSpillShuffleMapOutputWriter
-}
+import org.apache.spark.shuffle.api._
 import org.apache.spark.shuffle.helper.S3ShuffleDispatcher
 import org.apache.spark.storage.BlockManagerMaster
 import org.apache.spark.{SparkConf, SparkEnv}
 
 import java.util
-import java.util.{Collections, Optional}
+import java.util.Collections
 
 class S3ShuffleDataIO(sparkConf: SparkConf) extends ShuffleDataIO {
-  override def executor(): ShuffleExecutorComponents = new S3ShuffleExecutorComponents()
+  override def executor(): AiqShuffleExecutorComponents = new S3AiqShuffleExecutorComponents()
 
-  override def driver(): ShuffleDriverComponents = new S3ShuffleDriverComponents()
+  override def driver(): AiqShuffleDriverComponents = new S3AiqShuffleDriverComponents()
 
-  private class S3ShuffleExecutorComponents extends ShuffleExecutorComponents {
+  private class S3AiqShuffleExecutorComponents extends AiqShuffleExecutorComponents {
     private val blockManager = SparkEnv.get.blockManager
 
     override def initializeExecutor(appId: String, execId: String, extraConfigs: util.Map[String, String]): Unit = {
       S3ShuffleDispatcher.get.reinitialize(appId)
     }
 
-    override def createMapOutputWriter(shuffleId: Int, mapTaskId: Long, numPartitions: Int): ShuffleMapOutputWriter = {
+    override def aiqCreateMapOutputWriter(shuffleId: Int, mapTaskId: Long, numPartitions: Int): AiqShuffleMapOutputWriter = {
       new S3ShuffleMapOutputWriter(sparkConf, shuffleId, mapTaskId, numPartitions)
     }
 
-    override def createSingleFileMapOutputWriter(
+    override def aiqCreateSingleFileMapOutputWriter(
                                                   shuffleId: Int,
                                                   mapId: Long
-                                                ): Optional[SingleSpillShuffleMapOutputWriter] = {
-      Optional.of(new S3SingleSpillShuffleMapOutputWriter(shuffleId, mapId))
+                                                ): Option[AiqSingleSpillShuffleMapOutputWriter] = {
+      Option(new S3SingleSpillShuffleMapOutputWriter(shuffleId, mapId))
     }
   }
 
-  private class S3ShuffleDriverComponents extends ShuffleDriverComponents {
+  private class S3AiqShuffleDriverComponents extends AiqShuffleDriverComponents {
     private var blockManagerMaster: BlockManagerMaster = null
 
     override def initializeApplication(): util.Map[String, String] = {

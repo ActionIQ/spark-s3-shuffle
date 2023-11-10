@@ -23,20 +23,15 @@
 package org.apache.spark.shuffle.sort
 
 import com.ibm.SparkS3ShuffleBuild
-import org.apache.hadoop.fs.{Path, PathFilter}
 import org.apache.spark._
-import org.apache.spark.internal.{Logging, config}
+import org.apache.spark.internal.Logging
 import org.apache.spark.shuffle._
 import org.apache.spark.shuffle.api.ShuffleExecutorComponents
 import org.apache.spark.shuffle.helper.{S3ShuffleDispatcher, S3ShuffleHelper}
 import org.apache.spark.storage.S3ShuffleReader
 
-import java.io.IOException
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
 
 
 /**
@@ -117,7 +112,7 @@ private[spark] class S3ShuffleManager(conf: SparkConf) extends ShuffleManager wi
     val env = SparkEnv.get
     val writer = handle match {
       case unsafeShuffleHandle: SerializedShuffleHandle[K@unchecked, V@unchecked] =>
-        new UnsafeShuffleWriter(
+        new AiqUnsafeShuffleWriter(
           env.blockManager,
           context.taskMemoryManager(),
           unsafeShuffleHandle,
@@ -127,7 +122,7 @@ private[spark] class S3ShuffleManager(conf: SparkConf) extends ShuffleManager wi
           metrics,
           shuffleExecutorComponents)
       case bypassMergeSortHandle: BypassMergeSortShuffleHandle[K@unchecked, V@unchecked] =>
-        new BypassMergeSortShuffleWriter(
+        new AiqBypassMergeSortShuffleWriter(
           env.blockManager,
           bypassMergeSortHandle,
           mapId,

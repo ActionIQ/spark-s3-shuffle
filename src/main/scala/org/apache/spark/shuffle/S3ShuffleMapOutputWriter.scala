@@ -9,15 +9,14 @@ import org.apache.hadoop.fs.FSDataOutputStream
 import org.apache.spark.SparkConf
 import org.apache.spark.internal.Logging
 import org.apache.spark.shuffle.IndexShuffleBlockResolver.NOOP_REDUCE_ID
-import org.apache.spark.shuffle.api.metadata.MapOutputCommitMessage
-import org.apache.spark.shuffle.api.{ShuffleMapOutputWriter, ShufflePartitionWriter, WritableByteChannelWrapper}
+import org.apache.spark.shuffle.api.metadata.AiqMapOutputCommitMessage
+import org.apache.spark.shuffle.api.{AiqShuffleMapOutputWriter, AiqShufflePartitionWriter, AiqWritableByteChannelWrapper}
 import org.apache.spark.shuffle.helper.{S3ShuffleDispatcher, S3ShuffleHelper}
 import org.apache.spark.storage.ShuffleDataBlockId
 
 import java.io.{BufferedOutputStream, IOException, OutputStream}
 import java.nio.ByteBuffer
 import java.nio.channels.{Channels, WritableByteChannel}
-import java.util.Optional
 
 /**
  * Implements the ShuffleMapOutputWriter interface. It stores the shuffle output in one
@@ -31,7 +30,7 @@ class S3ShuffleMapOutputWriter(
                                 shuffleId: Int,
                                 mapId: Long,
                                 numPartitions: Int,
-                              ) extends ShuffleMapOutputWriter with Logging {
+                              ) extends AiqShuffleMapOutputWriter with Logging {
   val dispatcher = S3ShuffleDispatcher.get
 
   /* Target block for writing */
@@ -63,7 +62,7 @@ class S3ShuffleMapOutputWriter(
    * @param reducePartitionId Monotonically increasing, as per contract in ShuffleMapOutputWriter.
    * @return An instance of the ShufflePartitionWriter exposing the single output stream.
    */
-  override def getPartitionWriter(reducePartitionId: Int): ShufflePartitionWriter = {
+  override def aiqGetPartitionWriter(reducePartitionId: Int): AiqShufflePartitionWriter = {
     if (reducePartitionId <= lastPartitionWriterId) {
       throw new RuntimeException("Precondition: Expect a monotonically increasing reducePartitionId.")
     }
@@ -87,7 +86,7 @@ class S3ShuffleMapOutputWriter(
    * @param checksums Ignored.
    * @return
    */
-  override def commitAllPartitions(checksums: Array[Long]): MapOutputCommitMessage = {
+  override def aiqCommitAllPartitions(checksums: Array[Long]): AiqMapOutputCommitMessage = {
     if (bufferedStream != null) {
       bufferedStream.flush()
     }
@@ -111,7 +110,7 @@ class S3ShuffleMapOutputWriter(
         S3ShuffleHelper.writeChecksum(shuffleId, mapId, checksums)
       }
     }
-    MapOutputCommitMessage.of(partitionLengths)
+    new AiqMapOutputCommitMessage(partitionLengths, None)
   }
 
   override def abort(error: Throwable): Unit = {
@@ -130,7 +129,7 @@ class S3ShuffleMapOutputWriter(
     }
   }
 
-  private class S3ShufflePartitionWriter(reduceId: Int) extends ShufflePartitionWriter with Logging {
+  private class S3ShufflePartitionWriter(reduceId: Int) extends AiqShufflePartitionWriter with Logging {
     private var partitionStream: S3ShuffleOutputStream = _
     private var partitionChannel: S3ShufflePartitionWriterChannel = _
 
@@ -142,12 +141,12 @@ class S3ShuffleMapOutputWriter(
       partitionStream
     }
 
-    override def openChannelWrapper(): Optional[WritableByteChannelWrapper] = {
+    override def aiqOpenChannelWrapper(): Option[AiqWritableByteChannelWrapper] = {
       if (partitionChannel == null) {
         initChannel()
         partitionChannel = new S3ShufflePartitionWriterChannel(reduceId)
       }
-      Optional.of(partitionChannel)
+      Option(partitionChannel)
     }
 
     override def getNumBytesWritten: Long = {
@@ -199,7 +198,7 @@ class S3ShuffleMapOutputWriter(
   }
 
   private class S3ShufflePartitionWriterChannel(reduceId: Int)
-    extends WritableByteChannelWrapper {
+    extends AiqWritableByteChannelWrapper {
     private val partChannel = new S3PartitionWritableByteChannel(bufferedStreamAsChannel)
 
     override def channel(): WritableByteChannel = {
