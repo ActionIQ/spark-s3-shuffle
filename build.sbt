@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache2.0
 //
 
-version := "0.9.5-aiq6"
+version := "0.9.5-aiq7"
 scalaVersion := sys.env.getOrElse("SCALA_VERSION", "2.12.15")
 organization := "com.ibm"
 name := "spark-s3-shuffle"
@@ -32,7 +32,7 @@ buildInfoKeys ++= Seq[BuildInfoKey](
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-hadoop-cloud" % sparkVersion % "compile",
+  "org.apache.spark" %% "spark-hadoop-cloud" % sparkVersion % "provided",
   )
 
 libraryDependencies ++= (if (scalaBinaryVersion.value == "2.12") Seq(
